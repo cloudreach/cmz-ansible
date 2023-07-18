@@ -10,7 +10,7 @@ read -p "PROXY_PORT: " proxy_port
 
 read -p "PROXY_UNAME: " proxy_user
 
-read -p "PROXY_PSWD: " proxy_pass
+read -s -p "PROXY_PSWD: " proxy_pass
 
 case $region in
     us|US) region="US";;
