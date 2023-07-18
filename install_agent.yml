@@ -1,0 +1,47 @@
+- hosts: "cloudamize"
+
+  environment:
+    CLOUDAMIZE_CUSTOMER_KEY: "{{ customer_key }}"
+    PROXY_SERVER: "{{ proxy_server }}"
+    PROXY_PORT: "{{ proxy_port }}"
+    PROXY_UNAME: "{{ proxy_user }}"
+    PROXY_PSWD: "{{ proxy_pass }}"
+
+  vars:
+    region: "{{ region }}"
+
+  tasks:
+
+    - name: Test API Connectivity
+      uri:
+        url: https://am.cloudamize.com/cxf/test
+        method: GET
+        return_content: yes
+      register: result
+      failed_when: "'Server is up and running!' not in result.content"
+
+    - name: Set Region to US
+      set_fact:
+        download_host: https://am.cloudamize.com
+      when: region == 'US'
+
+    - name: Set Region to EU
+      set_fact:
+        download_host: https://am-de.cloudamize.com
+      when: region == 'EU'
+
+    - name: Download the Cloudamize Agent
+      unarchive:
+        src: "{{ download_host }}/cxf/downloadFile/cloudamize_agent.tgz"
+        dest: /tmp
+        remote_src: yes
+
+    - name: Install the Cloudamize Agent
+      become: true
+      command: chdir=/tmp/cloudamize_agent/ bash install.sh
+
+    - name: Configure the Cloudamize Agent
+      become: true
+      command: /usr/local/cloudamize/bin/configure.sh
+
+
