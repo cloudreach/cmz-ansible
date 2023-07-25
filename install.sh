@@ -25,7 +25,7 @@ if [ -n "$proxy_server" ]; then
 
     if [ -n "$proxy_user" ]; then
         read -s -p "Proxy Password: " proxy_pass
-	export proxy_pass
+        export proxy_pass
     fi
 fi
 
