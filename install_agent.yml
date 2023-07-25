@@ -6,42 +6,49 @@
     PROXY_PORT: "{{ proxy_port }}"
     PROXY_UNAME: "{{ proxy_user }}"
     PROXY_PSWD: "{{ proxy_pass }}"
+    https_proxy: "{{ https_proxy }}"
 
   vars:
     region: "{{ region }}"
 
   tasks:
+    - name: Install and Configure Cloudamize Agent
+      block:
+      - name: Set Region to US
+        set_fact:
+          download_host: https://am.cloudamize.com
+        when: region == 'US'
 
-    - name: Test API Connectivity
-      uri:
-        url: https://am.cloudamize.com/cxf/test
-        method: GET
-        return_content: yes
-      register: result
-      failed_when: "'Server is up and running!' not in result.content"
+      - name: Set Region to EU
+        set_fact:
+          download_host: https://am-de.cloudamize.com
+        when: region == 'EU'
 
-    - name: Set Region to US
-      set_fact:
-        download_host: https://am.cloudamize.com
-      when: region == 'US'
+      - name: Set Region to AE
+        set_fact:
+          download_host: https://am-ae.cloudamize.com
+        when: region == 'AE'
 
-    - name: Set Region to EU
-      set_fact:
-        download_host: https://am-de.cloudamize.com
-      when: region == 'EU'
+      - name: Test API Connectivity
+        uri:
+          url: "{{ download_host }}/cxf/test"
+          method: GET
+          return_content: yes
+        register: result
+        failed_when: "'Server is up and running!' not in result.content"
 
-    - name: Download the Cloudamize Agent
-      unarchive:
-        src: "{{ download_host }}/cxf/downloadFile/cloudamize_agent.tgz"
-        dest: /tmp
-        remote_src: yes
+      - name: Download the Cloudamize Agent
+        unarchive:
+          src: "{{ download_host }}/cxf/downloadFileV3?custkey={{ customer_key }}&filename=cloudamize_agent.tgz"
+          dest: /tmp
+          remote_src: yes
 
-    - name: Install the Cloudamize Agent
-      become: true
-      command: chdir=/tmp/cloudamize_agent/ bash install.sh
+      - name: Install the Cloudamize Agent
+        become: true
+        command: chdir=/tmp/cloudamize_agent/ bash install.sh
 
-    - name: Configure the Cloudamize Agent
-      become: true
-      command: /usr/local/cloudamize/bin/configure.sh
-
-
+      always:
+        - name: Cleanup Installer Files
+          file:
+            path: '/tmp/cloudamize_agent'
+            state: absent
