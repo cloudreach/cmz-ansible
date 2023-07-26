@@ -2,11 +2,13 @@
 
 This is an Ansible playbook to automate the installation of the cloudamize collector on linux servers.
 
+**Please note that this playbook is an example of a single method of installing the agent on many machines and may require modifications to work in your environment.**
+
 ## Step 1
 Install ansible on a machine that has ssh access to your linux servers.
 
-* On Ubuntu run `sudo apt install ansible`
-* On Centos run `sudo yum install ansible`
+* On Ubuntu/debian run `sudo apt install ansible`
+* On Centos/red hat run `sudo yum install ansible`
 
 ## Step 2
 Clone this repo
@@ -41,10 +43,17 @@ Note: A proxy server is not required and these values can be left blank.
 ```
 $ ./install.sh
 Customer Key: 0dbc6803...
-Region (US or EU): us
-PROXY_SERVER: 192.168.10.205
-PROXY_UNAME: user@example.com
-PROXY_PSWD: 123456
+Region (US/EU/AE): us
+
+* Please enter proxy details (enter for none)
+Proxy Server (NO PORT): 10.0.0.1
+Proxy Port: 80
+
+* Please enter proxy auth (enter for none)
+Proxy User: someuser
+Proxy Password:
+* Please enter SSH details
+SSH user: ansible
 SSH password:
 ```
 
